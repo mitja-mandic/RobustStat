@@ -92,6 +92,7 @@ incorrect.AO <- incorrect.AO/iterations
 plot(distancesOutliers, correct.AO, col="red", type="l", xlim=c(0, 2), ylim=c(0, max(c(max(correct.AO), max(correct.SD))))
      , xlab = "Distance", ylab = "Percentage of outliers detected")
 lines(distancesOutliers, correct.SD, col="green")
+title(main = sprintf("%dD %d%s outliers in sample of %d", p, contamination*100, "%", n))
 legend(x = "topleft",          # Position
        legend = c("AO", "SD"),  # Legend texts
        lty = c(1, 1),           # Line types
@@ -101,6 +102,7 @@ legend(x = "topleft",          # Position
 plot(distancesOutliers, incorrect.AO, col="red", type="l", xlim=c(0, 2), ylim=c(0, max(c(max(incorrect.AO), max(incorrect.SD))))
      , xlab = "Distance", ylab = "Percentage of regular points classified as outliers")
 lines(distancesOutliers, incorrect.SD, col="green")
+title(main = sprintf("%dD %d%s outliers in sample of %d", p, contamination*100, "%", n))
 legend(x = "topleft",          # Position
        legend = c("AO", "SD"),  # Legend texts
        lty = c(1, 1),           # Line types
