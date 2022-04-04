@@ -2,10 +2,11 @@ library(robustbase)
 library(sn)
 library(MASS)
 library(mrfDepth)
-set.seed(30)
+library(CensMFM)
+#set.seed(30)
 contamination = 0.1
-p = 2
-n = 500
+p = 10
+n = 1000
 
 alpha.2 <- c(10,4)
 alpha.5 <- c(10,10,4,4,4)
@@ -15,12 +16,15 @@ omega <- diag(p)
 #Function from package sn to generate skewed normal distribution. Added column of 1 to distinguish from 
 #added noise later. When changing p, don't forget to change alpha!!
 nRegular <- n*(1-contamination)
-generated <- rmsn(n=nRegular, xi=rep(0,length(alpha.2)), omega, alpha.2)
+generated <- rmsn(n=nRegular, xi=rep(0,length(alpha.10)), Omega=omega, alpha = alpha.10)
 generated <- cbind(generated,rep(0,nRegular))
+
+# generated.alt <- rMSN(n=nRegular,mu=rep(0,length(alpha.10)), Sigma = omega, shape=alpha.10)
+# generated.alt <- cbind(generated.alt,rep(0,nRegular))
 
 nOut <- n*contamination
 #Multivariate normal outliers (10% of m)
-outliers <- mvrnorm(nOut, mu = rep(-1,length(alpha.2)), Sigma = omega/20)
+outliers <- mvrnorm(nOut, mu = rep(-1.3,length(alpha.10)), Sigma = omega/20)
 outliers <- cbind(outliers, rep(1,nOut))
 
 #added the mixed skewed normal with outliers and shuffled them (not sure if shuffling is necessary though,
@@ -41,7 +45,7 @@ AO.cutoff <- AO.q3 + 1.5*exp(3*AO.mc)*AO.IQR
 #Searched for an implemented SD funciton - tried this, but got a lot larger values than from AO and not
 #sure why. From package mrfDepth
 
-stahelDonoho <- outlyingness(simulated[,1:p],z=NULL)
+stahelDonoho <- outlyingness(x=simulated[,1:p])
 SD.out.values <- stahelDonoho$outlyingnessX
 SD.q3 <- quantile(SD.out.values,0.75)
 SD.mc <- mc(SD.out.values)
@@ -53,4 +57,5 @@ colnames(outlyingnessTable) <- c("AO","SD","outlier")
 
 outlyingnessTable["classified by AO"] <- AO.values > AO.cutoff
 outlyingnessTable["classified by SD"] <- SD.out.values > SD.cutoff
+
 
