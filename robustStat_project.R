@@ -3,7 +3,7 @@ library(sn)
 library(MASS)
 library(mrfDepth)
 contamination <- 0.1
-p <- 5
+p <- 2
 n <- 200
 iterations <- 50
 seed <- 30
@@ -26,13 +26,14 @@ for (j in 1:iterations) {
   # Function from package sn to generate skewed normal distribution. Added column of 1 to distinguish from
   # added noise later. When changing p, don't forget to change alpha!!
   nRegular <- n * (1 - contamination)
-  generated <- rmsn(n = nRegular, xi = rep(0, length(alpha.5)), omega, alpha.5)
+  generated <- rmsn(n = nRegular, xi = rep(0, length(alpha.2)), omega, alpha.2) #For question 4
+  #generated <- mvrnorm(nRegular, mu = rep(0, length(alpha.10)), omega) #For question 5
   generated <- cbind(generated, rep(0, nRegular))
   
   nOut <- n * contamination
   # Multivariate normal outliers (10% of m)
   # put center at zero and later add distancesOutliers
-  outliers.notShifted <- mvrnorm(nOut, mu = rep(0, length(alpha.5)), Sigma = omega / 20)
+  outliers.notShifted <- mvrnorm(nOut, mu = rep(0, length(alpha.2)), Sigma = omega / 20)
   
   for (i in 1:length(distancesOutliers)) {
     outliers <- outliers.notShifted - distancesOutliers[i]
@@ -89,22 +90,40 @@ incorrect.SD <- incorrect.SD/iterations
 incorrect.AO <- incorrect.AO/iterations
 
 # generate correct plot
+#par(pty="s")
+
+corrName <- sprintf("../images/%dDn%d_correct.png", p, n)
+png(corrName, width = 520, height = 480)
 plot(distancesOutliers, correct.AO, col="red", type="l", xlim=c(0, 2), ylim=c(0, max(c(max(correct.AO), max(correct.SD))))
      , xlab = "Distance", ylab = "Percentage of outliers detected")
 lines(distancesOutliers, correct.SD, col="green")
+axis(1,at=c(0.0,0.5,1,1.5,2))
 title(main = sprintf("%dD %d%s outliers in sample of %d", p, contamination*100, "%", n))
+op <- par(cex = 0.5)          # Legend scale
 legend(x = "topleft",          # Position
        legend = c("AO", "SD"),  # Legend texts
        lty = c(1, 1),           # Line types
        col = c(2, 3),           # Line colors
-       lwd = 2)                 # Line width
+       lwd = 2,                 # Line width
+       horiz = TRUE)            # Legend orientation
+dev.off()
+
 # generate incorrect plot
-plot(distancesOutliers, incorrect.AO, col="red", type="l", xlim=c(0, 2), ylim=c(0, max(c(max(incorrect.AO), max(incorrect.SD))))
+#par(pty="s")
+incorrName <- sprintf("../images/%dDn%d_incorrect.png", p, n)
+png(incorrName, width = 520, height = 480)
+plot(distancesOutliers, incorrect.AO, col="red", type="l", xlim=c(0, 2), ylim=c(0, max(c(max(incorrect.AO), max(incorrect.SD)))+0.05)
      , xlab = "Distance", ylab = "Percentage of regular points classified as outliers")
 lines(distancesOutliers, incorrect.SD, col="green")
+axis(side=1, at=seq(0, 2, by=0.5))
+axis(side=2, at=seq(0,0.8,by=0.2))
 title(main = sprintf("%dD %d%s outliers in sample of %d", p, contamination*100, "%", n))
-legend(x = "topleft",          # Position
+op <- par(cex = 0.5)          # Legend scale
+legend(x = "topright",          # Position
        legend = c("AO", "SD"),  # Legend texts
        lty = c(1, 1),           # Line types
        col = c(2, 3),           # Line colors
-       lwd = 2)                 # Line width
+       lwd = 2,                 # Line width
+       horiz = TRUE)            # Legend orientation
+dev.off()
+
