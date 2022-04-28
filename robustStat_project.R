@@ -48,7 +48,7 @@ for (j in 1:iterations) {
     # Calculated adjusted outlyingness and necessary values for boxplot cutoff
     # IQR constant 0.7478975
     
-    AO.values <- adjOutlyingness(simulated[, 1:p], only.outlyingness = TRUE)
+    AO.values <- adjOutlyingness(simulated[, 1:p], only.outlyingness = TRUE, ndir = 250*p)
     AO.q3 <- quantile(AO.values, 0.75)
     AO.mc <- mc(AO.values)
     AO.IQR <- IQR(AO.values)
